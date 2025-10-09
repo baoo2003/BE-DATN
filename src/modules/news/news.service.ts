@@ -9,6 +9,10 @@ import { Topic } from './enums/news.enum';
 import { NewsResponseDto } from './dto/news-response.dto';
 import { ListNewsQueryDto } from './dto/list-news-query.dto';
 import { PaginatedNewsResponseDto } from './dto/paginated-news-response.dto';
+import { firstValueFrom } from 'rxjs';
+import { HttpService } from '@nestjs/axios';
+
+const PREDICT_URL = process.env.PREDICT_URL ?? 'http://127.0.0.1:8001/predict';
 
 @Injectable()
 export class NewsService {
@@ -18,6 +22,8 @@ export class NewsService {
 
     @InjectRepository(NewsDetail)
     private readonly detailRepo: Repository<NewsDetail>,
+
+    private readonly http: HttpService,
   ) {}
 
   private toDto(n: News): NewsResponseDto {
@@ -37,9 +43,30 @@ export class NewsService {
   async create(dto: CreateNewsDto): Promise<News> {
     const { content, ...meta } = dto;
 
+    let predictedTopic: Topic | undefined;
+
+    try {
+      const { data } = await firstValueFrom(
+        this.http.post(PREDICT_URL, {
+          title: dto.title ?? '',
+          content: content ?? '',
+        }),
+      );
+      const label = String(data?.label ?? '').trim();
+      // vì label trùng value enum => có thể cast trực tiếp
+      if (Object.values(Topic).includes(label as Topic)) {
+        predictedTopic = label as Topic;
+      } else {
+        console.warn(`Label "${label}" không khớp Topic enum`);
+      }
+    } catch (e) {
+      console.error(`Predict topic lỗi: ${e}`);
+    }
+
     // Tạo bản ghi news cơ bản
     const news = this.newsRepo.create({
       ...meta,
+      topic: predictedTopic ?? dto.topic ?? null,
       publishTime: meta.publishTime
         ? new Date(meta.publishTime as unknown as string)
         : new Date(),

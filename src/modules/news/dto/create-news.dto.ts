@@ -16,6 +16,7 @@ export class CreateNewsDto {
 
   @ApiProperty({ enum: Topic, enumName: 'Topic', example: Topic.CongNghe })
   @IsEnum(Topic)
+  @IsOptional()
   topic: Topic;
 
   @ApiPropertyOptional({
