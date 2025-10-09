@@ -9,16 +9,17 @@ import { Topic } from './enums/news.enum';
 import { NewsResponseDto } from './dto/news-response.dto';
 import { ListNewsQueryDto } from './dto/list-news-query.dto';
 import { PaginatedNewsResponseDto } from './dto/paginated-news-response.dto';
-import { firstValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
-
-const PREDICT_URL = process.env.PREDICT_URL ?? 'http://127.0.0.1:8001/predict';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class NewsService {
   constructor(
     @InjectRepository(News)
     private readonly newsRepo: Repository<News>,
+
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
 
     @InjectRepository(NewsDetail)
     private readonly detailRepo: Repository<NewsDetail>,
@@ -44,37 +45,21 @@ export class NewsService {
   async create(dto: CreateNewsDto, publisherId: number): Promise<News> {
     const { content, ...meta } = dto;
 
-    let predictedTopic: Topic | undefined;
-
-    try {
-      const { data } = await firstValueFrom(
-        this.http.post(PREDICT_URL, {
-          title: dto.title ?? '',
-          content: content ?? '',
-        }),
-      );
-      const label = String(data?.label ?? '').trim();
-      // vì label trùng value enum => có thể cast trực tiếp
-      if (Object.values(Topic).includes(label as Topic)) {
-        predictedTopic = label as Topic;
-      } else {
-        console.warn(`Label "${label}" không khớp Topic enum`);
-      }
-    } catch (e) {
-      console.error(`Predict topic lỗi: ${e}`);
+    const user = await this.userRepo.findOne({ where: { id: publisherId } });
+    if (!user) {
+      throw new NotFoundException(`User id=${publisherId} không tồn tại`);
     }
 
-    // Tạo bản ghi news cơ bản
     const news = this.newsRepo.create({
       ...meta,
-      topic: predictedTopic ?? dto.topic ?? null,
+      topic: dto.topic ?? null,
+      author: user.fullName ?? dto.author ?? 'Unknown',
       publishTime: meta.publishTime
         ? new Date(meta.publishTime as unknown as string)
         : new Date(),
-      publisher: { id: publisherId } as any,
+      publisher: user,
     });
 
-    // Nếu có nội dung -> tạo luôn detail
     if (content && content.trim()) {
       news.detail = this.detailRepo.create({ content });
     }
