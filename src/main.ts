@@ -11,6 +11,12 @@ async function bootstrap() {
   app.use(urlencoded({ extended: true, limit: '10mb' }));
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
+  // Bật CORS để hỗ trợ khi test trên web/dev
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
+
   const config = new DocumentBuilder()
     .setTitle('News API')
     .setDescription('The news API description')
@@ -20,6 +26,6 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(Number(process.env.PORT ?? 3000), '0.0.0.0');
 }
 bootstrap();
