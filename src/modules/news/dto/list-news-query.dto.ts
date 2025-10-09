@@ -26,4 +26,9 @@ export class ListNewsQueryDto {
   @IsOptional()
   @IsIn(['ASC', 'DESC'])
   order?: 'ASC' | 'DESC' = 'DESC';
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  publisherId?: number;
 }

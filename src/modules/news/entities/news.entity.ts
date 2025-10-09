@@ -1,5 +1,12 @@
 import { NewsDetail } from 'src/modules/news-detail/entities/news-detail.entity';
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from 'typeorm';
+import { User } from 'src/modules/user/entities/user.entity';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToOne,
+  ManyToOne,
+} from 'typeorm';
 
 @Entity({ name: 'news' })
 export class News {
@@ -33,6 +40,12 @@ export class News {
 
   @Column({ type: 'datetime', name: 'publish_time', nullable: true })
   publishTime: Date | null;
+
+  @ManyToOne(() => User, (user) => user.publishedNews, {
+    nullable: true,
+    eager: true,
+  })
+  publisher?: User | null;
 
   @OneToOne(() => NewsDetail, (detail) => detail.news, { cascade: true })
   detail: NewsDetail;

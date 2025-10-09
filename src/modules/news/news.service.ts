@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { CreateNewsDto } from './dto/create-news.dto';
 import { UpdateNewsDto } from './dto/update-news.dto';
 import { News } from './entities/news.entity';
@@ -32,6 +32,7 @@ export class NewsService {
       title: n.title,
       topic: n.topic as unknown as string,
       publishTime: n.publishTime ?? null,
+      publisher: n.publisher ?? null,
       author: n.author ?? null,
       content: n.detail?.content ?? null,
     };
@@ -40,7 +41,7 @@ export class NewsService {
   /**
    * 🆕 Tạo mới bài báo + nội dung chi tiết
    */
-  async create(dto: CreateNewsDto): Promise<News> {
+  async create(dto: CreateNewsDto, publisherId: number): Promise<News> {
     const { content, ...meta } = dto;
 
     let predictedTopic: Topic | undefined;
@@ -70,6 +71,7 @@ export class NewsService {
       publishTime: meta.publishTime
         ? new Date(meta.publishTime as unknown as string)
         : new Date(),
+      publisher: { id: publisherId } as any,
     });
 
     // Nếu có nội dung -> tạo luôn detail
@@ -85,7 +87,7 @@ export class NewsService {
    */
   async findAll(): Promise<NewsResponseDto[]> {
     const rows = await this.newsRepo.find({
-      relations: ['detail'], // lấy luôn content
+      relations: ['detail', 'publisher'], // lấy luôn content
       order: { id: 'DESC' },
     });
     return rows.map((n) => this.toDto(n));
@@ -98,8 +100,13 @@ export class NewsService {
       | 'ASC'
       | 'DESC';
 
+    const where: FindOptionsWhere<News> = {};
+    if (q.publisherId) {
+      (where as any).publisher = { id: q.publisherId };
+    }
+
     const [rows, total] = await this.newsRepo.findAndCount({
-      relations: ['detail'],
+      relations: ['detail', 'publisher'],
       order: { publishTime: order, id: 'DESC' }, // thứ tự phụ để ổn định
       skip: (page - 1) * pageSize,
       take: pageSize,
@@ -110,6 +117,7 @@ export class NewsService {
       title: n.title,
       topic: n.topic as unknown as string,
       publishTime: n.publishTime ?? null,
+      publisher: n.publisher ?? null,
       author: n.author ?? null,
       content: n.detail?.content ?? null,
     }));
@@ -135,7 +143,7 @@ export class NewsService {
   async findOne(id: number): Promise<NewsResponseDto> {
     const n = await this.newsRepo.findOne({
       where: { id },
-      relations: ['detail'],
+      relations: ['detail', 'publisher'],
     });
     if (!n) throw new NotFoundException(`News id=${id} không tồn tại`);
     return this.toDto(n);
@@ -144,10 +152,14 @@ export class NewsService {
   /**
    * ✏️ Cập nhật thông tin bài báo + nội dung
    */
-  async update(id: number, dto: UpdateNewsDto): Promise<News> {
+  async update(
+    id: number,
+    dto: UpdateNewsDto,
+    publisherId: number,
+  ): Promise<News> {
     const news = await this.newsRepo.findOne({
       where: { id },
-      relations: ['detail'],
+      relations: ['detail', 'publisher'],
     });
     if (!news) {
       throw new NotFoundException(`News id=${id} không tồn tại`);
@@ -171,6 +183,8 @@ export class NewsService {
         news.detail = this.detailRepo.create({ content: dto.content });
       }
     }
+
+    news.publisher = { id: publisherId } as any;
 
     return this.newsRepo.save(news);
   }
