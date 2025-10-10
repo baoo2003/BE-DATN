@@ -25,13 +25,13 @@ import { PaginatedNewsResponseDto } from './dto/paginated-news-response.dto';
 import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('news')
-@ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Controller('news')
 export class NewsController {
   constructor(private readonly newsService: NewsService) {}
 
   @Post()
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @ApiCreatedResponse({ description: 'Tạo bài báo thành công' })
   @ApiBody({ type: CreateNewsDto })
   create(@Req() req: any, @Body() createNewsDto: CreateNewsDto) {
@@ -58,6 +58,8 @@ export class NewsController {
   }
 
   @Get('my/paged')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @ApiOkResponse({ type: PaginatedNewsResponseDto })
   getMyPaged(@Query() q: ListNewsQueryDto, @Req() req: any) {
     const userId = req.user.userId;
@@ -71,6 +73,8 @@ export class NewsController {
   }
 
   @Patch(':id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @ApiCreatedResponse({ description: 'Cập nhật bài báo thành công' })
   @ApiBody({ type: UpdateNewsDto })
   update(
@@ -83,6 +87,8 @@ export class NewsController {
   }
 
   @Delete(':id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @ApiCreatedResponse({ description: 'Xóa bài báo thành công' })
   remove(@Param('id') id: string) {
     return this.newsService.remove(+id);

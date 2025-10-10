@@ -1,6 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsIn, IsInt, IsOptional, Max, Min } from 'class-validator';
+import { IsEnum, IsIn, IsInt, IsOptional, Max, Min } from 'class-validator';
+import { Topic } from '../enums/news.enum';
 
 export class ListNewsQueryDto {
   @ApiPropertyOptional({ default: 1, minimum: 1 })
@@ -31,4 +32,9 @@ export class ListNewsQueryDto {
   @Type(() => Number)
   @IsInt()
   publisherId?: number;
+
+  @IsOptional()
+  @IsEnum(Topic)
+  @ApiPropertyOptional({ enum: Topic, description: 'Lọc theo chủ đề' })
+  topic?: Topic;
 }

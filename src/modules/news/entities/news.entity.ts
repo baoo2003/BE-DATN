@@ -49,4 +49,11 @@ export class News {
 
   @OneToOne(() => NewsDetail, (detail) => detail.news, { cascade: true })
   detail: NewsDetail;
+
+  @Column({
+    type: 'varchar',
+    length: 4000,
+    nullable: true,
+  })
+  thumbnail: string | null;
 }

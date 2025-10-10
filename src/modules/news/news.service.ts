@@ -36,6 +36,7 @@ export class NewsService {
       publisher: n.publisher ?? null,
       author: n.author ?? null,
       content: n.detail?.content ?? null,
+      thumbnail: n.thumbnail ?? null,
     };
   }
 
@@ -58,6 +59,7 @@ export class NewsService {
         ? new Date(meta.publishTime as unknown as string)
         : new Date(),
       publisher: user,
+      thumbnail: dto.thumbnail ?? null,
     });
 
     if (content && content.trim()) {
@@ -89,8 +91,12 @@ export class NewsService {
     if (q.publisherId) {
       (where as any).publisher = { id: q.publisherId };
     }
+    if (q.topic) {
+      (where as any).topic = q.topic;
+    }
 
     const [rows, total] = await this.newsRepo.findAndCount({
+      where,
       relations: ['detail', 'publisher'],
       order: { publishTime: order, id: 'DESC' }, // thứ tự phụ để ổn định
       skip: (page - 1) * pageSize,
@@ -105,6 +111,7 @@ export class NewsService {
       publisher: n.publisher ?? null,
       author: n.author ?? null,
       content: n.detail?.content ?? null,
+      thumbnail: n.thumbnail ?? null,
     }));
 
     const pageCount = Math.ceil(total / pageSize);
@@ -159,6 +166,7 @@ export class NewsService {
         : new Date();
     }
     if (dto.author !== undefined) news.author = dto.author;
+    if (dto.thumbnail !== undefined) news.thumbnail = dto.thumbnail;
 
     // Cập nhật hoặc tạo mới nội dung
     if (dto.content !== undefined) {

@@ -20,4 +20,7 @@ export class NewsResponseDto {
 
   @ApiProperty({ description: 'Nội dung bài báo', nullable: true })
   content: string | null;
+
+  @ApiProperty({ nullable: true })
+  thumbnail: string | null;
 }

@@ -41,4 +41,12 @@ export class CreateNewsDto {
   @IsString()
   @IsNotEmpty()
   content: string;
+
+  @ApiPropertyOptional({
+    description: 'Chuỗi base64 hoặc URL ảnh đại diện',
+    example: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...',
+  })
+  @IsOptional()
+  @IsString()
+  thumbnail?: string;
 }
