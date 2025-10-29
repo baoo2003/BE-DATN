@@ -9,7 +9,6 @@ import { Topic } from './enums/news.enum';
 import { NewsResponseDto } from './dto/news-response.dto';
 import { ListNewsQueryDto } from './dto/list-news-query.dto';
 import { PaginatedNewsResponseDto } from './dto/paginated-news-response.dto';
-import { HttpService } from '@nestjs/axios';
 import { User } from '../user/entities/user.entity';
 
 @Injectable()
@@ -23,8 +22,6 @@ export class NewsService {
 
     @InjectRepository(NewsDetail)
     private readonly detailRepo: Repository<NewsDetail>,
-
-    private readonly http: HttpService,
   ) {}
 
   private toDto(n: News): NewsResponseDto {
