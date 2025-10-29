@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { ConfigModule } from '@nestjs/config';
+import { S3Module } from './modules/s3/s3.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ConfigModule } from '@nestjs/config';
     NewsModule,
     AuthModule,
     UserModule,
+    S3Module,
   ],
   controllers: [AppController],
   providers: [AppService],
