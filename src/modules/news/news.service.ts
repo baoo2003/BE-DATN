@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { CreateNewsDto } from './dto/create-news.dto';
 import { UpdateNewsDto } from './dto/update-news.dto';
 import { News } from './entities/news.entity';
@@ -90,6 +90,10 @@ export class NewsService {
     }
     if (q.topic) {
       (where as any).topic = q.topic;
+    }
+
+    if (q.title && q.title.trim()) {
+      (where as any).title = Like(`%${q.title.trim()}%`);
     }
 
     const [rows, total] = await this.newsRepo.findAndCount({
