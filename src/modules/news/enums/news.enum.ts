@@ -1,15 +1,15 @@
 export enum Topic {
-  CongNghe = 'công nghệ', // 0
-  DuLich = 'du lịch', // 1
-  GiaoDuc = 'giáo dục', // 2
-  GiaiTri = 'giải trí', // 3
-  KhoaHoc = 'khoa học', // 4
-  KinhDoanh = 'kinh doanh', // 5
-  PhapLuat = 'pháp luật', // 6
-  SucKhoe = 'sức khỏe', // 7
-  TheGioi = 'thế giới', // 8
-  TheThao = 'thể thao', // 9
-  ThoiSu = 'thời sự', // 10
-  Xe = 'xe', // 11
-  DoiSong = 'đời sống', // 12
+  CongNghe = 'Công nghệ', // 0
+  DuLich = 'Du lịch', // 1
+  GiaoDuc = 'Giáo dục', // 2
+  GiaiTri = 'Giải trí', // 3
+  KhoaHoc = 'Khoa học', // 4
+  KinhDoanh = 'Kinh doanh', // 5
+  PhapLuat = 'Pháp luật', // 6
+  SucKhoe = 'Sức khỏe', // 7
+  TheGioi = 'Thế giới', // 8
+  TheThao = 'Thể thao', // 9
+  ThoiSu = 'Thời sự', // 10
+  Xe = 'Xe', // 11
+  DoiSong = 'Đời sống', // 12
 }
